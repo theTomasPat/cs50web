@@ -2,7 +2,15 @@
 
 Web Programming with Python and JavaScript
 
-
+## Files
+---
+* `css/bootstrap.min.css` - Minified Bootstrap CSS file
+* `css/css.css` - custom CSS styling for use throughout the website
+* `js/bootstrap.bundle.min.js` - Minified Bootstrap Bundle script file
+* `index.html` - landing page for the website
+* `page1.html` - 
+* `page2.html` - 
+* `page3.html` - 
 
 
 # Requirements
