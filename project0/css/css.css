@@ -77,6 +77,10 @@ body {
   }
 }
 
+table {
+  padding-bottom: 2em;
+}
+
 .footer {
   background-color: #C7C9BE;
 }
