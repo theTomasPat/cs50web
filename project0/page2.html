@@ -2,12 +2,54 @@
 
 <html>
   <head>
-    <title>Page 2</title>
+    <title>Column Layout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
     <link rel="stylesheet" href="css/css.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <script src="js/bootstrap.bundle.min.js"></script>
   </head>
+
   <body>
-    <h1>Page 2</h1>
+    <div class="container-fluid">
+      <div class="row menu">
+        <div class="col-12">
+          <nav class="nav nav-justified">
+            <a href="#" class="nav-item nav-link">&#x1F3E0;</a>
+            <a href="page1.html" class="nav-item nav-link">Page 1</a>
+            <a href="page2.html" class="nav-item nav-link">Page 2</a>
+            <a href="page3.html" class="nav-item nav-link">Page 3</a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 parallax bg-page2" id="hero-image">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="title">
+          <h1>Column Layout Example</h1>
+          <hr id="title-hr">
+        </div>
+
+        <div class="content row">
+          <div class="col-12">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            <ul>
+              <li>Lorem ipsum dolor sit amet</li>
+              <li>Quisque laoreet suscipit rhoncus</li>
+              <li>Vestibulum sed iaculis sapien</li>
+            </ul>
+            <p>Donec rutrum, elit et vehicula pharetra, enim nisl sodales turpis, quis facilisis orci mauris sodales enim. Nam sed risus non libero maximus lacinia nec id nisl. In non sodales nisl. Nulla dui sem, dignissim vel consequat nec, scelerisque eu nibh. Suspendisse ipsum elit, sagittis a egestas sit amet, molestie nec turpis. Curabitur diam sapien, interdum quis mattis sit amet, blandit et nunc. <blockquote>Vivamus molestie sed nulla sed ultricies.</blockquote> Proin dapibus, justo vel pretium dapibus, odio arcu blandit justo, in scelerisque felis felis eget risus. Cras a molestie ligula, eu condimentum dui. Curabitur vel vestibulum velit. Cras at velit eu justo euismod molestie id vitae quam. Cras in risus mi.</p>
+          </div>          
+        </div>
+
+        <div class="footer col-12">
+          <p>Footer</p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

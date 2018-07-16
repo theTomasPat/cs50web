@@ -7,6 +7,7 @@ $title-color: $text-color;
 
 $bg-main: url('../img/pexels-photo-261403.jpeg');
 $bg-page1: url('../img/pexels-photo-261403.jpeg');
+$bg-page2: url('../img/pexels-photo-261403.jpeg');
 
 $screen-width-large: 992px;
 
@@ -103,4 +104,8 @@ body {
 
 .bg-page1 {
   background-image: $bg-page1;
+}
+
+.bg-page2 {
+  background-image: $bg-page2;
 }
