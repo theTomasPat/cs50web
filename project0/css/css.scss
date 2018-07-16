@@ -1,5 +1,18 @@
+$menu-bg-color: #F4F5ED;
+$menu-link-color: #DC4E00;
+
+$text-color: #333;
+$title-color-mobile: #EEE;
+$title-color: $text-color;
+
+$screen-width-large: 992px;
+
+$content-padding: 2em;
+
+$footer-bg-color: #C7C9BE;
+
 body {
-  color: #333;
+  color: $text-color;
 }
 
 .container-fluid {
@@ -10,15 +23,16 @@ body {
 }
 
 .menu {
-  background-color: #F4F5ED;
+  background-color: $menu-bg-color;
   box-shadow: 0 0 3px black;
-}
-.menu .nav a {
-  color: #DC4E00;
+
+  .nav a {
+    color: $menu-link-color;
+  }
 }
 
 .vert-separator {
-  background-color: #333;
+  background-color: $text-color;
   width: 2px;
   height: 10px;
 }
@@ -35,12 +49,13 @@ body {
   bottom: 0;
   left: 0;
   background-size: 100%;
+
   transform: translateZ(-0.5px) scale(2);
   z-index: -1;
 }
 
 .title {
-  color: #EEE;
+  color: $title-color-mobile;
   position: relative;
   width: 100%;
   left: 0%;
@@ -48,12 +63,11 @@ body {
   margin-bottom: -10em;
   text-align: center;
   text-shadow: 0 0 20px black;
-}
-@media screen and (min-width: 992px) {
-  .title {
+
+  @media screen and (min-width: $screen-width-large) {
     position: relative;
     background-color: white;
-    color: #333;
+    color: $title-color;
     text-align: left;
     left: 0px;
     top: 0px;
@@ -65,24 +79,21 @@ body {
 
 .content {
   background-color: white;
-  padding: 2em 2em 0 2em;
+  padding: 2em $content-padding 0 $content-padding;
 }
 
 #title-hr {
   display: none;
-}
-@media screen and (min-width: 992px) {
-  #title-hr {
+
+  @media screen and (min-width: $screen-width-large) {
     display: block;
   }
 }
 
 .footer {
-  background-color: #C7C9BE;
+  background-color: $footer-bg-color;
 }
 
 .bg-main {
-  background-image: url("../img/pexels-photo-261403.jpeg");
+  background-image: url('../img/pexels-photo-261403.jpeg');
 }
-
-/*# sourceMappingURL=css.css.map */
