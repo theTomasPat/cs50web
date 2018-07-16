@@ -5,6 +5,9 @@ $text-color: #333;
 $title-color-mobile: #EEE;
 $title-color: $text-color;
 
+$bg-main: url('../img/pexels-photo-261403.jpeg');
+$bg-page1: url('../img/pexels-photo-261403.jpeg');
+
 $screen-width-large: 992px;
 
 $content-padding: 2em;
@@ -95,5 +98,9 @@ body {
 }
 
 .bg-main {
-  background-image: url('../img/pexels-photo-261403.jpeg');
+  background-image: $bg-main;
+}
+
+.bg-page1 {
+  background-image: $bg-page1;
 }
