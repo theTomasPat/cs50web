@@ -11,7 +11,7 @@ Session(app)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-  if session.get("notes") is NONE:
+  if session.get("notes") is None:
     session["notes"] = []
 
   if request.method == "POST":
