@@ -2,6 +2,10 @@
 
 Web Programming with Python and JavaScript
 
+A super simple website using at least one different page to demonstrate each content type. The website is meant to demonstrate a very simple blog-style layout with a large hero image at the top and content that runs down vertically.
+
+It was designed with layout choices being made with a mobile-first consideration. All `@media` queries used add modifications to incrementally larger screens.
+
 ## Files
 ---
 * `css/bootstrap.min.css` - Minified Bootstrap CSS file
