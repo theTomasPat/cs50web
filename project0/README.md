@@ -8,9 +8,9 @@ Web Programming with Python and JavaScript
 * `css/css.css` - custom CSS styling for use throughout the website
 * `js/bootstrap.bundle.min.js` - Minified Bootstrap Bundle script file
 * `index.html` - landing page for the website
-* `page1.html` - 
-* `page2.html` - 
-* `page3.html` - 
+* `page1.html` - used to demonstrate a column layout
+* `page2.html` - used to demonstrate an unordered list
+* `page3.html` - used to show the use of Bootstrap sytling on a table
 
 
 # Requirements
