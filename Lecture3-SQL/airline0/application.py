@@ -14,11 +14,11 @@ def index():
   flights = db.execute("SELECT * FROM flights").fetchall()
   return render_template("index.html", flights=flights)
 
-@app.route("/book", methods={"POST"})
+@app.route("/book", methods=["POST"])
 def book():
-  # create a flight booking
+  # Create a flight booking
 
-  # get form info
+  # Get form info
   name = request.form.get("name")
   try:
     flight_id = int(request.form.get("flight_id"))
