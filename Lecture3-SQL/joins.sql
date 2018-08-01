@@ -4,10 +4,10 @@ CREATE TABLE passengers (
   flight_id INTEGER REFERENCES flights
 );
 
-INSERT INTO passengers (name, flight_id) VALUES ('Alice', 1);
-INSERT INTO passengers (name, flight_id) VALUES ('Bob', 1);
-INSERT INTO passengers (name, flight_id) VALUES ('Charlie', 2);
-INSERT INTO passengers (name, flight_id) VALUES ('David', 2);
+INSERT INTO passengers (name, flight_id) VALUES ('Alice', 8);
+INSERT INTO passengers (name, flight_id) VALUES ('Bob', 8);
+INSERT INTO passengers (name, flight_id) VALUES ('Charlie', 3);
+INSERT INTO passengers (name, flight_id) VALUES ('David', 3);
 INSERT INTO passengers (name, flight_id) VALUES ('Neo', 4);
-INSERT INTO passengers (name, flight_id) VALUES ('Sam', 6);
-INSERT INTO passengers (name, flight_id) VALUES ('Tomas', 6);
+INSERT INTO passengers (name, flight_id) VALUES ('Sam', 5);
+INSERT INTO passengers (name, flight_id) VALUES ('Tomas', 5);
