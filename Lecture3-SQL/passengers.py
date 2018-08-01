@@ -11,7 +11,7 @@ def main():
   flights = db.execute("SELECT id, origin, destination, duration FROM flights").fetchall()
   
   for flight in flights:
-    print(f"Flight #{flight.id}: {flight.origin} -> {flight.destination} ({flight.duration} mins)")
+    print(f"Flight {flight.id}: {flight.origin} -> {flight.destination} ({flight.duration} mins)")
 
   # Prompt user to choose a flight
   flight_id = int(input("\nEnter desired flight number: "))
