@@ -14,5 +14,23 @@ def index():
   flights = db.execute("SELECT * FROM flights").fetchall()
   return render_template("index.html", flights=flights)
 
-#@app.route("/book", methods={"POST"})
-#def book():
+@app.route("/book", methods={"POST"})
+def book():
+  # create a flight booking
+
+  # get form info
+  name = request.form.get("name")
+  try:
+    flight_id = int(request.form.get("flight_id"))
+  except ValueError:
+    return render_template("error.html", message="Invalid flight number.")
+  
+  # Verify that flight exists
+  if db.execute("SELECT * FROM flights WHERE id = :flight_id", {"flight_id": flight_id}).returns_rows == False:
+    return render_template("error.html", message="Flight does not exist.")
+  
+  # Update passengers table
+  db.execute("INSERT INTO passengers (name, flight_id) VALUES (:name, :flight_id)", {"name": name, "flight_id": flight_id})
+  db.commit()
+
+  return render_template("success.html")
