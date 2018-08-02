@@ -2,8 +2,19 @@
 
 Web Programming with Python and JavaScript
 
-## Requirements:
----
+### import.py
+
+`python import.py file_to_import.csv`
+
+This program will take a supplied CSV file (given as a comman-line argument) and loop over each row, adding them to the `books` table in the DB specified in the `DATABASE_URL` environment variable.
+
+The CSV is assumed to have a header and the columns are:
+* isbn
+* title
+* author
+* year
+
+# Requirements:
 
 ☐
 ☑︎
@@ -15,7 +26,7 @@ Web Programming with Python and JavaScript
 
 ☐**Logout:** Logged in users should be able to log out of the site.
 
-☐**Import:** Provided for you in this project is a file called books.csv, which is a spreadsheet in CSV format of 5000 different books. Each one has an ISBN nubmer, a title, an author, and a publication year. In a Python file called `import.py` separate from your web application, write a program that will take the books and import them into your PostgreSQL database. You will first need to decide what table(s) to create, what columns those tables should have, and how they should relate to one another. Run this program by running `python3 import.py` to import the books into your database, and submit this program with the rest of your project code.
+☑︎︎︎︎︎︎︎**Import:** Provided for you in this project is a file called books.csv, which is a spreadsheet in CSV format of 5000 different books. Each one has an ISBN nubmer, a title, an author, and a publication year. In a Python file called `import.py` separate from your web application, write a program that will take the books and import them into your PostgreSQL database. You will first need to decide what table(s) to create, what columns those tables should have, and how they should relate to one another. Run this program by running `python3 import.py` to import the books into your database, and submit this program with the rest of your project code.
 
 ☐**Search:** Once a user has logged in, they should be taken to a page where they can search for a book. Users should be able to type in the ISBN number of a book, the title of a book, or the author of a book. After performing the search, your website should display a list of possible matching results, or some sort of message if there were no matches. If the user typed in only part of a title, ISBN, or author name, your search page should find matches for those as well!
 
