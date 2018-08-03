@@ -4,6 +4,7 @@ CREATE TABLE books (
   title VARCHAR NOT NULL,
   author VARCHAR NOT NULL,
   year INTEGER NOT NULL,
-  average_score NUMERIC(3, 2) NOT NULL,
-  review_count INTEGER NOT NULL
+  average_score NUMERIC(3, 2),
+  review_count INTEGER,
+  image_url VARCHAR
 );
