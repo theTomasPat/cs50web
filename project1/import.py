@@ -17,20 +17,19 @@ def main(fileToImport):
     csvReader = csv.reader(infile)
     next(csvReader, None)
 
-    for entry in csvReader:
-      # TODO: retrieve book info from GoodReads using ISBN
-      bookInfo = GoodReads.bookInfoISBN(entry[0])
+    count = 1
 
-      db.execute("INSERT INTO books (isbn, title, author, year, average_score, review_count, image_url) VALUES (:isbn, :title, :author, :year, :avgScore, :reviewCount, :imgURL)", {
+    for entry in csvReader:
+      db.execute("INSERT INTO books (isbn, title, author, year) VALUES (:isbn, :title, :author, :year)", {
         "isbn": entry[0],
         "title": entry[1],
         "author": entry[2],
-        "year": entry[3],
-        "avgScore": bookInfo['average_score'],
-        "reviewCount": 0,
-        "imgURL": bookInfo['image_url']
+        "year": entry[3]
         })
-      print(f"Adding {entry[1]} by {entry[2]}")
+
+      print(f"{count}: Adding {entry[1]} by {entry[2]}")
+      count += 1
+      
     db.commit()
     print("Import complete")
 
