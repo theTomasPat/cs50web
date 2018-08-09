@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{#
+  this template needs variables:
+  bookList: Dictionary
+    .name: String, the name of the search query or Top ##
+    .books: Dictionary of book entries
+      .isbn: String, the isbn of the book
+      .coverImage: URL for cover image
+      .title: String, the title of the book
+      .author: String, the author of the book
+      .description: String, the book's description
+#}
+
+{% block title %}
+  {{ bookList.name }}
+{% endblock %}
+
+{% block body %}
+  <div class="row">
+    {% for book in bookList.books %}
+      <div class="col">
+        <div class="card" style="width: 18rem;">
+          <div class="card-img-top">
+            <image src="{{ book.coverImage }}" />
+          </div>
+          <div class="card-body">
+            <div class="card-title">
+              <h5>{{ book.title }}</h5>
+            </div>
+            <div class="card-subtitle">
+              <h6>{{ book.author }}</h6>
+            </div>
+            <div class="card-text">
+              <p>{{ book.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

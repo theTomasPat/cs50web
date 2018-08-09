@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{#
+  this template needs variables:
+    book: Dictionary, book entry
+      .isbn: String, the isbn of the book
+      .coverImage: URL for cover image
+      .title: String, the title of the book
+      .author: String, the author of the book
+      .description: String, the book's description
+      .rating: Number, the book's average score
+      .reviews: Dictionary, the book's reviews
+        .reviewUsername: String, the user who wrote the review
+        .reviewRating: Number, the user's rating
+        .reviewBody: String, the user's review of the book
+#}
+
+{% block title %}
+  {{ book.title }}
+{% endblock %}
+
+{% block body %}
+  <div>
+    <image src="{{ book.coverImage }}" class="rounded float-left" />
+    <h3>{{ book.title }}</h3>
+    <h5>{{ book.author }}</h5>
+    <p>Rating: {{ book.rating }}</p>
+    <p>{{ book.description }}</p>
+  </div>
+
+  <div>
+    <h3>Reviews</h3>
+    <hr>
+    {% for review in book.reviews %}
+      <div class="row">
+        <div class="col">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ review.reviewUsername }}</h5>
+              <h6 class="card-subtitle text-muted">Rating: {{ review.reviewRating }}/5</h6>
+              <p>{{ review.reviewBody }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
