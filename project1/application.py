@@ -6,6 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from src.dbRunner import addUser
+
 app = Flask(__name__)
 
 # Check for environment variable
@@ -88,6 +90,7 @@ def signup():
   if request.method == 'POST':
     try:
       addUser(
+        db,
         request.form['username'],
         request.form['email'],
         request.form['password']
