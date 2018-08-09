@@ -90,3 +90,7 @@ def signup():
 @app.route("/search")
 def search():
   return "Search page."
+
+@app.route("/book/isbn/<isbn>")
+def bookPage(isbn):
+  return "ISBN: {}".format(isbn)
