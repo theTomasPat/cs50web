@@ -24,6 +24,7 @@ db = scoped_session(sessionmaker(bind=engine))
 ''' APP ROUTES '''
 @app.route("/")
 def index():
+  # Dummy data vv
   bookList = [
     {
       'name': 'Top 40',
