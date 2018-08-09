@@ -10,6 +10,11 @@
   {# <div class="container"> #}
   <div class="container border rounded">
     <h3>Sign Up</h3>
+    {% if error %}
+      <div class="alert alert-danger">
+        <p>{{ error.message }}</p>
+      </div>
+    {% endif %}
     <form action="{{ url_for('signup') }}" method="POST">
       <div class="form-group row">
           <div class="col">

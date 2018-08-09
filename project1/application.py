@@ -76,16 +76,31 @@ def login():
   if request.method == 'POST':
     session['username'] = request.form['user']
     return redirect(url_for('index'))
-  return render_template("login.html")
+  return render_template('login.html')
 
 @app.route("/logout")
 def logout():
   session.pop('username', None)
   return redirect(url_for('index'))
 
-@app.route("/signup", methods=["GET", "POST"])
+@app.route("/signup", methods=['GET', 'POST'])
 def signup():
-  return "Signup page."
+  if request.method == 'POST':
+    try:
+      addUser(
+        request.form['username'],
+        request.form['email'],
+        request.form['password']
+      )
+    except Exception as err:
+      return render_template('signup.html', loggedIn=False, error=err)
+    else:
+      return redirect(url_for('login'))
+  
+  if 'username' in session:
+    return render_template('signup.html', loggedIn=True)
+  return render_template('signup.html', loggedIn=False)
+
 
 @app.route("/search")
 def search():
