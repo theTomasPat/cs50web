@@ -17,26 +17,32 @@
 {% endblock %}
 
 {% block body %}
-  <div class="row">
-    {% for book in bookList.books %}
-      <div class="col">
-        <div class="card" style="width: 18rem;">
-          <div class="card-img-top">
-            <image src="{{ book.coverImage }}" />
-          </div>
-          <div class="card-body">
-            <div class="card-title">
-              <h5>{{ book.title }}</h5>
+  {% for section in bookList %}
+    <div class="row">
+      <h3>{{ section.name }}</h3>
+      <hr>
+    </div>
+    <div class="row">
+      {% for book in section.books %}
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <div class="card-img-top">
+              <image src="{{ book.coverImage }}" style="width: 18rem;"/>
             </div>
-            <div class="card-subtitle">
-              <h6>{{ book.author }}</h6>
-            </div>
-            <div class="card-text">
-              <p>{{ book.description }}</p>
+            <div class="card-body">
+              <div class="card-title">
+                <h5>{{ book.title }}</h5>
+              </div>
+              <div class="card-subtitle">
+                <h6>{{ book.author }}</h6>
+              </div>
+              <div class="card-text">
+                <p>{{ book.description }}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
 {% endblock %}
