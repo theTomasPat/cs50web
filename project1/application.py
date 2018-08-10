@@ -96,7 +96,7 @@ def signup():
         request.form['password']
       )
     except Exception as err:
-      return render_template('signup.html', loggedIn=False, error=err)
+      return render_template('signup.html', loggedIn=False, error=err.args[0])
     else:
       return redirect(url_for('login'))
   
