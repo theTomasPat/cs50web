@@ -76,7 +76,16 @@ def index():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
   if request.method == 'POST':
-    session['username'] = request.form['user']
+    try:
+      login(
+        db,
+        request.form['username'],
+        request.form['password']
+      )
+    except Exception as err:
+      return render_template('login.html', loggedIn=False, error=err.args[0])
+    else:
+      session['username'] = request.form['user']
     return redirect(url_for('index'))
   return render_template('login.html')
 
