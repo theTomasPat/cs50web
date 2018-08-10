@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src.dbRunner import addUser
+from src.dbRunner import addUser, verifyLogin
 
 app = Flask(__name__)
 
@@ -77,12 +77,13 @@ def index():
 def login():
   if request.method == 'POST':
     try:
-      login(
+      verifyLogin(
         db,
-        request.form['username'],
+        request.form['user'],
         request.form['password']
       )
     except Exception as err:
+      #print(err)
       return render_template('login.html', loggedIn=False, error=err.args[0])
     else:
       session['username'] = request.form['user']

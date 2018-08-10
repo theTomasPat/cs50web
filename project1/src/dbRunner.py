@@ -66,13 +66,13 @@ def emailExists(db, email):
     return False
   return True
 
-def login(db, name, password):
+def verifyLogin(db, handle, password):
   """
   Verifies if given login credentials result in a successful login
 
   Arguments:
     db -- Session, the db object to run SQL queries on
-    name -- String, either the username or email address
+    handle -- String, either the username or email address
     password -- String, the user's password
 
   Raises:
@@ -80,19 +80,24 @@ def login(db, name, password):
   """
   invalidMsg = "Username or password is incorrect."
 
-  if isEmail(name):
+  if isEmail(handle):
     # query the email
-    dbUser = db.execute("SELECT username FROM users WHERE email = :email", {"email": name}).fetchone()
+    print(f"Querying DB with email: {handle}")
+    dbUser = db.execute("SELECT username FROM users WHERE email = :email", {"email": handle}).fetchone()
   else:
     # query the username
-    dbUser = db.execute("SELECT username FROM users WHERE username = :username", {"username": name}).fetchone()
+    print(f"Querying DB with username: {handle}")
+    dbUser = db.execute("SELECT username FROM users WHERE username = :username", {"username": handle}).fetchone()
   
   if dbUser == None:
+    print("Username/email wasn't found")
     raise Exception(invalidMsg)
   
-  dbPassword = db.execute("SELECT password FROM users WHERE username = :username", {"username": dbUser}).fetchone()
+  print(f"Grabbing hashed password where username: {dbUser[0]}")
+  dbPassword = db.execute("SELECT password FROM users WHERE username = :username", {"username": dbUser[0]}).fetchone()[0]
 
-  if not sha256.verify(password, dbPassword):
+  if not sha256.verify(password, dbPassword.__str__()):
+    print("Password was incorrect")
     raise Exception(invalidMsg)
 
 def isEmail(_str):
