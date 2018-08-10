@@ -12,7 +12,7 @@
     <h3>Sign Up</h3>
     {% if error %}
       <div class="alert alert-danger">
-        <p>{{ error.message }}</p>
+        {{ error }}
       </div>
     {% endif %}
     <form action="{{ url_for('signup') }}" method="POST">
