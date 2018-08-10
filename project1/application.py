@@ -98,10 +98,11 @@ def signup():
     except Exception as err:
       return render_template('signup.html', loggedIn=False, error=err.args[0])
     else:
-      return redirect(url_for('login'))
+      session['username'] = request.form['username']
+      return redirect(url_for('index'))
   
   if 'username' in session:
-    return render_template('signup.html', loggedIn=True)
+    return redirect(url_for('index'))
   return render_template('signup.html', loggedIn=False)
 
 
