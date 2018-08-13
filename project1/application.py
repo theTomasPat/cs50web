@@ -7,6 +7,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from src.dbRunner import addUser, verifyLogin
+from src.GoodReads import bookInfoISBN
 
 app = Flask(__name__)
 
@@ -68,10 +69,7 @@ def index():
     }
   ]
 
-  if 'username' in session:
-    #return "Logged in as {}".format(escape(session['username']))
-    return render_template("bookList.html", loggedIn=True, bookList=bookList)
-  return render_template("bookList.html", loggedIn=False, bookList=bookList)
+  return render_template("bookList.html", loggedIn=isLoggedIn(), bookList=bookList)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -111,7 +109,7 @@ def signup():
       session['username'] = request.form['username']
       return redirect(url_for('index'))
   
-  if 'username' in session:
+  if isLoggedIn():
     return redirect(url_for('index'))
   return render_template('signup.html', loggedIn=False)
 
@@ -122,4 +120,32 @@ def search():
 
 @app.route("/book/isbn/<isbn>")
 def bookPage(isbn):
-  return "ISBN: {}".format(isbn)
+  dbBookInfo = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+
+  if dbBookInfo == None:
+    return render_template("bookPage.html", loggedIn=isLoggedIn(), error="That book can't be found!")
+
+  bookID = dbBookInfo[0]
+  dbBookReviews = db.execute("SELECT (user_id, rating, description) FROM reviews WHERE book_id = :bookID", {"bookID": bookID}).fetchall()
+  goodReadsBookInfo = bookInfoISBN(isbn)
+
+  book= {
+    "isbn": dbBookInfo[1],
+    "coverImage": goodReadsBookInfo['image_url'],
+    "title": dbBookInfo[2],
+    "author": dbBookInfo[3],
+    "year": dbBookInfo[4],
+    "description": goodReadsBookInfo['descriprion'],
+    "rating": goodReadsBookInfo['average_score'],
+    "reviews": dbBookReviews
+  }
+
+  return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book)
+
+
+
+""" Helpers """
+def isLoggedIn():
+  if 'username' in session:
+    return True
+  return False

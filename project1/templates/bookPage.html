@@ -4,15 +4,14 @@
   this template needs variables:
     book: Dictionary, book entry
       .isbn: String, the isbn of the book
+      .year: Integer, the book's publication year
       .coverImage: URL for cover image
       .title: String, the title of the book
       .author: String, the author of the book
       .description: String, the book's description
-      .rating: Number, the book's average score
-      .reviews: Dictionary, the book's reviews
-        .reviewUsername: String, the user who wrote the review
-        .reviewRating: Number, the user's rating
-        .reviewBody: String, the user's review of the book
+      .average_score: Number, the book's average score
+      .reviews: List, list of tuples, one for each review, structured as:
+        (user_id, rating, description)
 #}
 
 {% block title %}
@@ -20,11 +19,17 @@
 {% endblock %}
 
 {% block body %}
+  {% if error %}
+    <div class="alert alert-danger">
+      {{ error }}
+    </div>
+  {% endif %}
+
   <div>
     <image src="{{ book.coverImage }}" class="rounded float-left" />
     <h3>{{ book.title }}</h3>
     <h5>{{ book.author }}</h5>
-    <p>Rating: {{ book.rating }}</p>
+    <p>Rating: {{ book.average_score }}</p>
     <p>{{ book.description }}</p>
   </div>
 
