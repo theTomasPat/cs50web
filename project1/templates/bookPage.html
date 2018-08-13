@@ -25,29 +25,31 @@
     </div>
   {% endif %}
 
-  <div>
-    <image src="{{ book.coverImage }}" class="rounded float-left" />
-    <h3>{{ book.title }}</h3>
-    <h5>{{ book.author }}</h5>
-    <p>Rating: {{ book.average_score }}</p>
-    <p>{{ book.description }}</p>
-  </div>
+  {% if book %}
+    <div>
+      <image src="{{ book.coverImage }}" class="rounded float-left" />
+      <h3>{{ book.title }}</h3>
+      <h5>{{ book.author }}</h5>
+      <p>Rating: {{ book.average_score }}</p>
+      <p>{{ book.description }}</p>
+    </div>
 
-  <div>
-    <h3>Reviews</h3>
-    <hr>
-    {% for review in book.reviews %}
-      <div class="row">
-        <div class="col">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">{{ review.reviewUsername }}</h5>
-              <h6 class="card-subtitle text-muted">Rating: {{ review.reviewRating }}/5</h6>
-              <p>{{ review.reviewBody }}</p>
+    <div>
+      <h3>Reviews</h3>
+      <hr>
+      {% for review in book.reviews %}
+        <div class="row">
+          <div class="col">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">{{ review[0] }} says:</h5>
+                <h6 class="card-subtitle text-muted">Rating: {{ review[1] }}/5</h6>
+                <p>{{ review[2] }}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 {% endblock %}

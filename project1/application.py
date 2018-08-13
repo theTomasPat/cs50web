@@ -123,21 +123,27 @@ def bookPage(isbn):
   dbBookInfo = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 
   if dbBookInfo == None:
-    return render_template("bookPage.html", loggedIn=isLoggedIn(), error="That book can't be found!")
+    return render_template("bookPage.html", loggedIn=isLoggedIn(), book=None, error="That book can't be found!")
 
   bookID = dbBookInfo[0]
-  dbBookReviews = db.execute("SELECT (user_id, rating, description) FROM reviews WHERE book_id = :bookID", {"bookID": bookID}).fetchall()
+  dbBookReviews = db.execute("SELECT user_id, rating, description FROM reviews WHERE book_id = :bookID", {"bookID": bookID}).fetchall()
+  if dbBookReviews != None:
+    processedReviews = []
+    for review in dbBookReviews:
+      user = db.execute("SELECT username FROM users WHERE id=:id", {"id": review[0]}).fetchone()[0]
+      processedReviews.append((user, review[1], review[2]))
+
   goodReadsBookInfo = bookInfoISBN(isbn)
 
-  book= {
+  book = {
     "isbn": dbBookInfo[1],
     "coverImage": goodReadsBookInfo['image_url'],
     "title": dbBookInfo[2],
     "author": dbBookInfo[3],
     "year": dbBookInfo[4],
-    "description": goodReadsBookInfo['descriprion'],
-    "rating": goodReadsBookInfo['average_score'],
-    "reviews": dbBookReviews
+    "description": goodReadsBookInfo['description'],
+    "average_score": goodReadsBookInfo['average_score'],
+    "reviews": processedReviews
   }
 
   return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book)
