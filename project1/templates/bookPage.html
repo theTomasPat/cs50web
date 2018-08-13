@@ -27,11 +27,23 @@
 
   {% if book %}
     <div>
-      <image src="{{ book.coverImage }}" class="rounded float-left" />
-      <h3>{{ book.title }}</h3>
-      <h5>{{ book.author }}</h5>
-      <p>Rating: {{ book.average_score }}</p>
-      <p>{{ book.description }}</p>
+      <div class="row">
+        <div class="col-2">
+          <image src="{{ book.coverImage }}" class="rounded" />
+        </div>
+        <div class="col">
+          <h3><u>{{ book.title }}</u></h3>
+          <h4>{{ book.author }}</h4>
+          <p>Rating: {{ book.average_score }}</p>
+          <p>Year: {{ book.year }}</p>
+          <p>ISBN: {{ book.isbn }}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <p>{{ book.description }}</p>
+        </div>
+      </div>
     </div>
 
     <div>
