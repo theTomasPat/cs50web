@@ -19,8 +19,10 @@ def bookInfoISBN(isbn):
   xmlRoot = ElementTree.fromstring(xmlString)
   xmlAverageScore = xmlRoot.iter('average_rating').__next__().text
   xmlImageUrl = xmlRoot.iter('image_url').__next__().text
+  xmlDescription = xmlRoot.iter('description').__next__().text
 
   return {
     'average_score': xmlAverageScore,
-    'image_url': xmlImageUrl
+    'image_url': xmlImageUrl,
+    'description': xmlDescription
     }
