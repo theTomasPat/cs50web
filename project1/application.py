@@ -135,6 +135,15 @@ def bookPage(isbn):
 
   goodReadsBookInfo = bookInfoISBN(isbn)
 
+  # Set userReviewExists to default False
+  # then re-set it if the user is logged in
+  userReviewExists = False
+  if isLoggedIn():
+    userReviews = db.execute("SELECT id FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id": getUserIDFromUsername(), "book_id": bookID}).fetchone()
+    userReviewExists = False if userReviews == None else True
+    print(f"User review exists: {userReviewExists}")
+
+  # Build the book object that will be passed into the html template
   book = {
     "isbn": dbBookInfo[1],
     "coverImage": goodReadsBookInfo['image_url'],
@@ -146,7 +155,7 @@ def bookPage(isbn):
     "reviews": processedReviews
   }
 
-  return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book)
+  return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book, userReviewExists=userReviewExists)
 
 
 
@@ -155,3 +164,8 @@ def isLoggedIn():
   if 'username' in session:
     return True
   return False
+
+def getUserIDFromUsername():
+  userID = db.execute("SELECT id FROM users WHERE username = :username", {"username": session.get('username')}).fetchone()[0]
+  print(f"Retrieved user ID from {session.get('username')}: {userID}")
+  return userID
