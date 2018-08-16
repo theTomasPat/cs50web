@@ -55,7 +55,7 @@
 
       {% if loggedIn %}
         <div class="card">
-          <form action="" method="">
+          <form>
             <div class="card-header">
               <div class="row">
                 <div class="col-6">
@@ -63,18 +63,37 @@
                 </div>
                 <div class="col-6">
                   {% if userReviewExists %}
-                    <button type="button" class="btn btn-light float-right">✏️</button>
-                    <button type="button" class="btn btn-light float-right">🗑</button>
+                    <button type="button" class="btn btn-light float-right" onClick="editReview()">✏️</button>
+                    <button type="button" class="btn btn-light float-right" onClick="deleteReview()">🗑</button>
                   {% else %}
-                    <button type="button" class="btn btn-primary float-right">Publish</button>
+                    <button type="button" class="btn btn-primary float-right" onClick="publishReview()">Publish</button>
                   {% endif %}
                 </div>
               </div>
             </div>
             <div class="card-body">
               <label for="rating">How would you rate it?</label>
-              <input type="range" class="form-control" name="reviewRating" min="0" max="5" step="1">
-              <textarea rows="5" class="form-control" name="reviewBody"></textarea>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="rating" id="rating-1" value="1" required>
+                <label for="rating-1" class="form-check-label">1</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="rating" id="rating-2" value="2" required>
+                <label for="rating-2" class="form-check-label">2</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="rating" id="rating-3" value="3" required>
+                <label for="rating-3" class="form-check-label">3</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="rating" id="rating-4" value="4" required>
+                <label for="rating-4" class="form-check-label">4</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="rating" id="rating-5" value="5" required>
+                <label for="rating-5" class="form-check-label">5</label>
+              </div>
+              <textarea rows="5" class="form-control" id="reviewBody"></textarea>
             </div>
           </form>
         </div>
@@ -97,4 +116,32 @@
   {% endif %}
 
 {# </div> #}
+
+<script>
+  function editReview() {
+    console.log("Submitting updated review " + JSON.stringify(getFormData()));
+  }
+
+  function deleteReview() {
+    console.log("Requesting to delete review " + JSON.stringify(getFormData()));
+  }
+
+  function publishReview() {
+    console.log("Submitting new review " + JSON.stringify(getFormData()));
+  }
+
+  function getFormData() {
+    _rating = document.querySelector('input[name="rating"]:checked').value;
+    _body   = document.getElementById("reviewBody").value;
+
+    if (_rating && _body) {
+      return {
+        "rating": _rating,
+        "body": _body
+      };
+    }
+    
+    return null;
+  }
+</script>
 {% endblock %}
