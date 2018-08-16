@@ -118,7 +118,7 @@ def signup():
 def search():
   return "Search page."
 
-@app.route("/book/isbn/<isbn>")
+@app.route("/book/isbn/<isbn>", methods=['GET', 'POST', 'DELETE'])
 def bookPage(isbn):
   dbBookInfo = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 
