@@ -105,3 +105,39 @@ def isEmail(_str):
   if regexMatch == None:
     return False
   return True
+
+def getUserIDFromUsername(db, username):
+  userID = db.execute("SELECT id FROM users WHERE username = :username", {"username": username}).fetchone()[0]
+  print(f"Retrieved user ID from {username}: {userID}")
+  return userID
+
+def userReviewExists(db, book_id, user_id):
+  if isLoggedIn():
+    userReviews = db.execute("SELECT id FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id": user_id, "book_id": book_id}).fetchone()
+    return False if userReviews == None else True
+  return False
+
+def postReview(db, user_id, book_id, rating, body):
+  db.execute("INSERT INTO reviews (user_id, book_id, rating, description) VALUES (:user_id, :book_id, :rating, :desc)", {
+    "user_id": user_id,
+    "book_id": book_id,
+    "rating":  rating,
+    "desc":    body
+  })
+  db.commit()
+
+def editReview(db, user_id, book_id, rating, body):
+  db.execute("UPDATE reviews SET rating=:rating, description=:desc WHERE user_id=:userID AND book_id=:bookID", {
+    "rating": rating,
+    "desc":   body,
+    "userID": user_id,
+    "bookID": book_id
+  })
+  db.commit()
+
+def deleteReview(db, user_id, book_id):
+  db.execute("DELETE FROM reviews WHERE user_id=:userID AND book_id=:bookID", {
+    "userID": user_id,
+    "bookID": book_id
+  })
+  db.commit()

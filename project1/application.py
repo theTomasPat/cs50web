@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src.dbRunner import addUser, verifyLogin
+from src.dbRunner import addUser, verifyLogin, postReview, editReview, deleteReview, getUserIDFromUsername, userReviewExists
 from src.GoodReads import bookInfoISBN
 
 app = Flask(__name__)
@@ -150,22 +150,16 @@ def bookPage(isbn):
       "reviews": processedReviews
     }
 
-    return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book, userReviewExists=userReviewExists(bookID, getUserIDFromUsername()))
+    return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book, userReviewExists=userReviewExists(db, bookID, getUserIDFromUsername(db, session.get('username'))))
   
   # Route logic for POST request method
   elif request.method == 'POST':
-    userID = getUserIDFromUsername()
+    userID = getUserIDFromUsername(db, session.get('username'))
     bookID = dbBookInfo[0]
     _method = request.form['formMethod']
 
     if _method == 'delete':
-      # Logic for delete request
-      db.execute("DELETE FROM reviews WHERE user_id=:userID AND book_id=:bookID", {
-        "userID": userID,
-        "bookID": bookID
-      })
-      db.commit()
-
+      deleteReview(db, userID, bookID)
       print(f"User {session.get('username')} requested to delete their review")
       return redirect(f"/book/isbn/{isbn}")
 
@@ -176,32 +170,17 @@ def bookPage(isbn):
 
       if _method == 'post':
         # Logic for post request
-        if userReviewExists(bookID, userID):
+        if userReviewExists(db, bookID, userID):
           print("Couldn't publish review because one already exists for this book by this user")
           return redirect(f"/book/isbn/{isbn}")
         else:
-          db.execute("INSERT INTO reviews (user_id, book_id, rating, description) VALUES (:user_id, :book_id, :rating, :desc)", {
-            "user_id": userID,
-            "book_id": bookID,
-            "rating":  _rating,
-            "desc":    _reviewBody
-          })
-          db.commit()
-
+          postReview(db, userID, bookID, _rating, _reviewBody)
           print(f"User {session.get('username')} requested to post a review:\n{_rating}, {_reviewBody}")
           return redirect(f"/book/isbn/{isbn}")
 
       elif _method == 'edit':
         # Logic for edit request
-        # TODO: add db call to edit user's review for this book
-        db.execute("UPDATE reviews SET rating=:rating, description=:desc WHERE user_id=:userID AND book_id=:bookID", {
-          "rating": _rating,
-          "desc":   _reviewBody,
-          "userID": userID,
-          "bookID": bookID
-        })
-        db.commit()
-
+        editReview(db, userID, bookID, _rating, _reviewBody)
         print(f"User {session.get('username')} requested to edit their review:\n{_rating}, {_reviewBody}")
         return redirect(f"/book/isbn/{isbn}")
     
@@ -210,15 +189,4 @@ def bookPage(isbn):
 def isLoggedIn():
   if 'username' in session:
     return True
-  return False
-
-def getUserIDFromUsername():
-  userID = db.execute("SELECT id FROM users WHERE username = :username", {"username": session.get('username')}).fetchone()[0]
-  print(f"Retrieved user ID from {session.get('username')}: {userID}")
-  return userID
-
-def userReviewExists(book_id, user_id):
-  if isLoggedIn():
-    userReviews = db.execute("SELECT id FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id": user_id, "book_id": book_id}).fetchone()
-    return False if userReviews == None else True
   return False
