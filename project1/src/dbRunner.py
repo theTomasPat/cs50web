@@ -111,8 +111,8 @@ def getUserIDFromUsername(db, username):
   print(f"Retrieved user ID from {username}: {userID}")
   return userID
 
-def userReviewExists(db, book_id, user_id):
-  if isLoggedIn():
+def userReviewExists(db, book_id, user_id, loggedIn):
+  if loggedIn:
     userReviews = db.execute("SELECT id FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id": user_id, "book_id": book_id}).fetchone()
     return False if userReviews == None else True
   return False

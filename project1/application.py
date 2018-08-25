@@ -150,7 +150,7 @@ def bookPage(isbn):
       "reviews": processedReviews
     }
 
-    return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book, userReviewExists=userReviewExists(db, bookID, getUserIDFromUsername(db, session.get('username'))))
+    return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book, userReviewExists=userReviewExists(db, bookID, getUserIDFromUsername(db, session.get('username')), isLoggedIn()))
   
   # Route logic for POST request method
   elif request.method == 'POST':
@@ -170,7 +170,7 @@ def bookPage(isbn):
 
       if _method == 'post':
         # Logic for post request
-        if userReviewExists(db, bookID, userID):
+        if userReviewExists(db, bookID, userID, isLoggedIn()):
           print("Couldn't publish review because one already exists for this book by this user")
           return redirect(f"/book/isbn/{isbn}")
         else:
