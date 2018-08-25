@@ -55,7 +55,7 @@
 
       {% if loggedIn %}
         <div class="card">
-          <form>
+          <form id="reviewSubmission">
             <div class="card-header">
               <div class="row">
                 <div class="col-6">
@@ -72,6 +72,7 @@
               </div>
             </div>
             <div class="card-body">
+              <input type="hidden" name="formMethod" id="formMethod">
               <label for="rating">How would you rate it?</label>
               <div class="form-check form-check-inline">
                 <input type="radio" class="form-check-input" name="rating" id="rating-1" value="1" required>
@@ -93,7 +94,7 @@
                 <input type="radio" class="form-check-input" name="rating" id="rating-5" value="5" required>
                 <label for="rating-5" class="form-check-label">5</label>
               </div>
-              <textarea rows="5" class="form-control" id="reviewBody"></textarea>
+              <textarea rows="5" class="form-control" name="reviewBody" id="reviewBody"></textarea>
             </div>
           </form>
         </div>
@@ -119,15 +120,30 @@
 
 <script>
   function editReview() {
-    console.log("Submitting updated review " + JSON.stringify(getFormData()));
+    console.log("Requesting to edit review");
+    _form = getFormElement();
+    _form.method = 'post';
+    _form.action = "{{ url_for('bookPage', isbn=book.isbn) }}";
+    document.getElementById("formMethod").value = 'edit';
+    _form.submit();
   }
 
   function deleteReview() {
-    console.log("Requesting to delete review " + JSON.stringify(getFormData()));
+    console.log("Requesting to delete review");
+    _form = getFormElement();
+    _form.method = 'post';
+    _form.action = "{{ url_for('bookPage', isbn=book.isbn) }}";
+    document.getElementById("formMethod").value = 'delete';
+    _form.submit();
   }
 
   function publishReview() {
-    console.log("Submitting new review " + JSON.stringify(getFormData()));
+    console.log("Requesting to post a review");
+    _form = getFormElement();
+    _form.method = 'post';
+    _form.action = "{{ url_for('bookPage', isbn=book.isbn) }}";
+    document.getElementById("formMethod").value = 'post';
+    _form.submit();
   }
 
   function getFormData() {
@@ -140,8 +156,12 @@
         "body": _body
       };
     }
-    
+
     return null;
+  }
+
+  function getFormElement() {
+    return document.getElementById("reviewSubmission");
   }
 </script>
 {% endblock %}

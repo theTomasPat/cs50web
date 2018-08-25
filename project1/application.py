@@ -120,44 +120,91 @@ def search():
 
 @app.route("/book/isbn/<isbn>", methods=['GET', 'POST', 'DELETE'])
 def bookPage(isbn):
+  # This info will be needed regardless of the request method
+  # the book ID for the requested ISBN is especially necessary
   dbBookInfo = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
-
   if dbBookInfo == None:
     return render_template("bookPage.html", loggedIn=isLoggedIn(), book=None, error="That book can't be found!")
 
-  bookID = dbBookInfo[0]
-  dbBookReviews = db.execute("SELECT user_id, rating, description FROM reviews WHERE book_id = :bookID", {"bookID": bookID}).fetchall()
-  if dbBookReviews != None:
-    processedReviews = []
-    for review in dbBookReviews:
-      user = db.execute("SELECT username FROM users WHERE id=:id", {"id": review[0]}).fetchone()[0]
-      processedReviews.append((user, review[1], review[2]))
+  # Route logic for GET request method
+  if request.method == 'GET':
+    bookID = dbBookInfo[0]
+    dbBookReviews = db.execute("SELECT user_id, rating, description FROM reviews WHERE book_id = :bookID", {"bookID": bookID}).fetchall()
+    if dbBookReviews != None:
+      processedReviews = []
+      for review in dbBookReviews:
+        user = db.execute("SELECT username FROM users WHERE id=:id", {"id": review[0]}).fetchone()[0]
+        processedReviews.append((user, review[1], review[2]))
 
-  goodReadsBookInfo = bookInfoISBN(isbn)
+    goodReadsBookInfo = bookInfoISBN(isbn)
 
-  # Set userReviewExists to default False
-  # then re-set it if the user is logged in
-  userReviewExists = False
-  if isLoggedIn():
-    userReviews = db.execute("SELECT id FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id": getUserIDFromUsername(), "book_id": bookID}).fetchone()
-    userReviewExists = False if userReviews == None else True
-    print(f"User review exists: {userReviewExists}")
+    # Build the book object that will be passed into the html template
+    book = {
+      "isbn": dbBookInfo[1],
+      "coverImage": goodReadsBookInfo['image_url'],
+      "title": dbBookInfo[2],
+      "author": dbBookInfo[3],
+      "year": dbBookInfo[4],
+      "description": goodReadsBookInfo['description'],
+      "average_score": goodReadsBookInfo['average_score'],
+      "reviews": processedReviews
+    }
 
-  # Build the book object that will be passed into the html template
-  book = {
-    "isbn": dbBookInfo[1],
-    "coverImage": goodReadsBookInfo['image_url'],
-    "title": dbBookInfo[2],
-    "author": dbBookInfo[3],
-    "year": dbBookInfo[4],
-    "description": goodReadsBookInfo['description'],
-    "average_score": goodReadsBookInfo['average_score'],
-    "reviews": processedReviews
-  }
+    return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book, userReviewExists=userReviewExists(bookID, getUserIDFromUsername()))
+  
+  # Route logic for POST request method
+  elif request.method == 'POST':
+    userID = getUserIDFromUsername()
+    bookID = dbBookInfo[0]
+    _method = request.form['formMethod']
 
-  return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book, userReviewExists=userReviewExists)
+    if _method == 'delete':
+      # Logic for delete request
+      db.execute("DELETE FROM reviews WHERE user_id=:userID AND book_id=:bookID", {
+        "userID": userID,
+        "bookID": bookID
+      })
+      db.commit()
 
+      print(f"User {session.get('username')} requested to delete their review")
+      return redirect(f"/book/isbn/{isbn}")
 
+    else:
+      # These variables are only needed for 'post' and 'edit' methods
+      _rating = request.form['rating']
+      _reviewBody = request.form['reviewBody']
+
+      if _method == 'post':
+        # Logic for post request
+        if userReviewExists(bookID, userID):
+          print("Couldn't publish review because one already exists for this book by this user")
+          return redirect(f"/book/isbn/{isbn}")
+        else:
+          db.execute("INSERT INTO reviews (user_id, book_id, rating, description) VALUES (:user_id, :book_id, :rating, :desc)", {
+            "user_id": userID,
+            "book_id": bookID,
+            "rating":  _rating,
+            "desc":    _reviewBody
+          })
+          db.commit()
+
+          print(f"User {session.get('username')} requested to post a review:\n{_rating}, {_reviewBody}")
+          return redirect(f"/book/isbn/{isbn}")
+
+      elif _method == 'edit':
+        # Logic for edit request
+        # TODO: add db call to edit user's review for this book
+        db.execute("UPDATE reviews SET rating=:rating, description=:desc WHERE user_id=:userID AND book_id=:bookID", {
+          "rating": _rating,
+          "desc":   _reviewBody,
+          "userID": userID,
+          "bookID": bookID
+        })
+        db.commit()
+
+        print(f"User {session.get('username')} requested to edit their review:\n{_rating}, {_reviewBody}")
+        return redirect(f"/book/isbn/{isbn}")
+    
 
 """ Helpers """
 def isLoggedIn():
@@ -169,3 +216,9 @@ def getUserIDFromUsername():
   userID = db.execute("SELECT id FROM users WHERE username = :username", {"username": session.get('username')}).fetchone()[0]
   print(f"Retrieved user ID from {session.get('username')}: {userID}")
   return userID
+
+def userReviewExists(book_id, user_id):
+  if isLoggedIn():
+    userReviews = db.execute("SELECT id FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id": user_id, "book_id": book_id}).fetchone()
+    return False if userReviews == None else True
+  return False
