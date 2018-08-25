@@ -118,7 +118,7 @@ def signup():
 def search():
   return "Search page."
 
-@app.route("/book/isbn/<isbn>", methods=['GET', 'POST', 'DELETE'])
+@app.route("/book/isbn/<isbn>", methods=['GET', 'POST'])
 def bookPage(isbn):
   # This info will be needed regardless of the request method
   # the book ID for the requested ISBN is especially necessary
@@ -150,7 +150,20 @@ def bookPage(isbn):
       "reviews": processedReviews
     }
 
-    return render_template("bookPage.html", loggedIn=isLoggedIn(), book=book, userReviewExists=userReviewExists(db, bookID, getUserIDFromUsername(db, session.get('username')), isLoggedIn()))
+    return render_template(
+      "bookPage.html",
+      loggedIn=isLoggedIn(),
+      book=book,
+      userReviewExists=userReviewExists(
+        db,
+        bookID,
+        getUserIDFromUsername(
+          db,
+          session.get('username')
+        ),
+        isLoggedIn()        
+      )
+    )
   
   # Route logic for POST request method
   elif request.method == 'POST':
