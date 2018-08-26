@@ -1,3 +1,5 @@
+// TODO: implement loading GoodReads data client-side with Javascript instead of server-side which makes the site really slow
+
 {% extends "layout.html" %}
 
 {#
@@ -27,14 +29,18 @@
         <div class="col">
           <div class="card" style="width: 18rem;">
             <div class="card-img-top">
-              <image src="{{ book.coverImage }}" style="width: 18rem;"/>
+              <a href="{{ url_for('bookPage', isbn=book.isbn) }}">
+                <image src="{{ book.coverImage }}" style="width: 18rem;"/>
+              </a>
             </div>
             <div class="card-body">
               <div class="card-title">
                 <h5>{{ book.title }}</h5>
               </div>
               <div class="card-subtitle">
-                <h6>{{ book.author }}</h6>
+                <a href="{{ url_for('search', query=book.author) }}">
+                  <h6>{{ book.author }}</h6>
+                </a>
               </div>
               <div class="card-text">
                 <p>{{ book.description }}</p>

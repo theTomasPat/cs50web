@@ -1,5 +1,7 @@
 import re
 from passlib.hash import pbkdf2_sha256 as sha256
+from src.GoodReads import bookInfoISBN
+from sqlalchemy.sql import text
 
 def addUser(db, username, email, password):
   """
@@ -107,9 +109,11 @@ def isEmail(_str):
   return True
 
 def getUserIDFromUsername(db, username):
-  userID = db.execute("SELECT id FROM users WHERE username = :username", {"username": username}).fetchone()[0]
-  print(f"Retrieved user ID from {username}: {userID}")
-  return userID
+  userID = db.execute("SELECT id FROM users WHERE username = :username", {"username": username}).fetchone()
+  if userID == None:
+    return 0
+  print(f"Retrieved user ID from {username}: {userID[0]}")
+  return userID[0]
 
 def userReviewExists(db, book_id, user_id, loggedIn):
   if loggedIn:
@@ -141,3 +145,77 @@ def deleteReview(db, user_id, book_id):
     "bookID": book_id
   })
   db.commit()
+
+def dbBookSearch(db, col, query):
+  """
+  Search the books table of the DB for entries matching the given criteria
+
+  Arguments:
+    - db -- Session, the db object to run the queries on
+    - col -- String, the name of the column to run the search on, also used as the section header in rendered template
+    - query -- String, the user's search query
+
+  Returns:
+    - dictionary, A dictionary in the format:
+      {
+        "section name": String,
+        "books": List [
+          {
+            'isbn': String,
+            'cover_image': URL,
+            'title': String,
+            'author': String,
+            'description': String
+          }
+          , ...
+        ]
+      }
+  """
+
+  print(f"Searching {col} for {query}")
+  bookListEntry = {}
+  if col == 'Title':
+    dbQuery = text("SELECT * FROM books WHERE lower(title) LIKE :query ORDER BY title LIMIT 10")
+  elif col == 'Author':
+    dbQuery = text("SELECT * FROM books WHERE lower(author) LIKE :query ORDER BY author LIMIT 10")
+  elif col == 'ISBN':
+    dbQuery = text("SELECT * FROM books WHERE lower(isbn) LIKE :query ORDER BY isbn LIMIT 10")
+  else:
+    # Select random books
+    dbQuery = text("SELECT * FROM books ORDER BY RANDOM() LIMIT 5")
+
+  searchResult = db.execute(dbQuery, {
+    "query": f"%{query.casefold()}%"
+  }).fetchall()
+
+  bookListEntry['name'] = col
+  bookListEntry['books'] = []
+
+  if len(searchResult) == 0:
+    print(f"{col} returned no results")
+    bookListEntry['books'].append({
+      'isbn': '',
+      'coverImage': '',
+      'title': 'No search results found!',
+      'author': '',
+      'description': ''
+    })
+  else:
+    for book in searchResult:
+      print(f"fetching GoodReads data for {book[2]} by {book[3]}...")
+      goodReadsBookInfo = bookInfoISBN(book[1])
+
+      if goodReadsBookInfo['description'] == None:
+        goodReadsBookInfo['description'] = ""
+      else:
+        goodReadsBookInfo['description'] = goodReadsBookInfo['description'][:150]
+
+      bookListEntry['books'].append({
+        'isbn': book[1],
+        'coverImage': goodReadsBookInfo['image_url'],
+        'title': book[2],
+        'author': book[3],
+        'description': goodReadsBookInfo['description']
+      })
+  
+  return bookListEntry

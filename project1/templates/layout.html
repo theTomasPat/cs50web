@@ -16,11 +16,11 @@
         </div>
 
         <div class="col-4">
-          <form action="{{ url_for('search') }}">
+          <form id="searchForm">
             <div class="input-group">
-              <input type="text" class="form-control" name="search" placeholder="Search...">
+              <input type="text" class="form-control" id="searchQuery" name="searchQuery" placeholder="Search...">
               <div class="input-group-append">
-                <button type="submit" class="button">🔎</button>
+                <button type="button" class="button" onClick="submitSearch()">🔎</button>
               </div>
             </div>
           </form>
@@ -39,5 +39,14 @@
         {% block body %}{% endblock %}
       </div>
     </div>
+
+    <script>
+      function submitSearch() {
+        _form = document.getElementById("searchForm");
+        _searchInput = document.getElementById("searchQuery").value;
+        _form.action = "/search/" + _searchInput;
+        _form.submit();
+      }
+    </script>
   </body>
 </html>
