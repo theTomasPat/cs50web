@@ -89,13 +89,13 @@ def search(query):
 def bookPage(isbn):
   # This info will be needed regardless of the request method
   # the book ID for the requested ISBN is especially necessary
-  dbBookInfo = dbBookInfo(db, isbn)
-  if dbBookInfo == None:
+  bookInfo = dbBookInfo(db, isbn)
+  if bookInfo == None:
     return render_template("bookPage.html", loggedIn=isLoggedIn(), book=None, error="That book can't be found!")
 
   # Route logic for GET request method
   if request.method == 'GET':
-    bookID = dbBookInfo[0]
+    bookID = bookInfo[0]
     dbBookReviews = db.execute("SELECT user_id, rating, description FROM reviews WHERE book_id = :bookID", {"bookID": bookID}).fetchall()
     if dbBookReviews != None:
       processedReviews = []
@@ -107,11 +107,11 @@ def bookPage(isbn):
 
     # Build the book object that will be passed into the html template
     book = {
-      "isbn": dbBookInfo[1],
+      "isbn": bookInfo[1],
       "coverImage": goodReadsBookInfo['image_url'],
-      "title": dbBookInfo[2],
-      "author": dbBookInfo[3],
-      "year": dbBookInfo[4],
+      "title": bookInfo[2],
+      "author": bookInfo[3],
+      "year": bookInfo[4],
       "description": goodReadsBookInfo['description'],
       "average_score": goodReadsBookInfo['average_score'],
       "reviews": processedReviews
@@ -135,7 +135,7 @@ def bookPage(isbn):
   # Route logic for POST request method
   elif request.method == 'POST':
     userID = getUserIDFromUsername(db, session.get('username'))
-    bookID = dbBookInfo[0]
+    bookID = bookInfo[0]
     _method = request.form['formMethod']
 
     if _method == 'delete':
@@ -167,12 +167,12 @@ def bookPage(isbn):
         print(f"User {session.get('username')} requested to edit their review:\n{_rating}, {_reviewBody}")
         return redirect(f"/book/isbn/{isbn}")
 
-@app.route('/app/<string:isbn>')
+@app.route('/api/<string:isbn>')
 def apiGetIsbn(isbn):
   bookInfo = dbBookInfo(db, isbn)
   if bookInfo is None:
     # Flask response made from tuple (response, status, headers)
-    return (json.dumps({}), 400, {'ContentType': 'application/json'})
+    return ("", 400, {'Content-Type': 'application/json'})
 
   goodReadsInfo = bookInfoISBN(isbn)
 
@@ -195,7 +195,7 @@ def apiGetIsbn(isbn):
     }),
     200,
     {
-      'ContentType': 'application/json'
+      'Content-Type': 'application/json'
     }
   )
 

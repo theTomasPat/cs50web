@@ -227,7 +227,8 @@ def dbBookSearch(db, col, query):
   return bookListEntry
 
 def dbBookInfo(db, isbn):
-  return db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+  dbRow = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+  return dbRow
 
 def countReviews(db, bookID):
   """
@@ -246,4 +247,4 @@ def countReviews(db, bookID):
   if reviewCount is None:
     return 0
 
-  return reviewCount
+  return reviewCount[0]
