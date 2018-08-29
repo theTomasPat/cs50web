@@ -1,4 +1,5 @@
 import os
+import json
 
 from flask import Flask, session, request, redirect, escape, url_for, render_template
 from flask_session import Session
@@ -6,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src.dbRunner import addUser, verifyLogin, postReview, editReview, deleteReview, getUserIDFromUsername, userReviewExists, dbBookSearch
+from src.dbRunner import addUser, verifyLogin, postReview, editReview, deleteReview, getUserIDFromUsername, userReviewExists, dbBookSearch, dbBookInfo, countReviews
 from src.GoodReads import bookInfoISBN
 
 app = Flask(__name__)
@@ -88,7 +89,7 @@ def search(query):
 def bookPage(isbn):
   # This info will be needed regardless of the request method
   # the book ID for the requested ISBN is especially necessary
-  dbBookInfo = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+  dbBookInfo = dbBookInfo(db, isbn)
   if dbBookInfo == None:
     return render_template("bookPage.html", loggedIn=isLoggedIn(), book=None, error="That book can't be found!")
 
@@ -165,7 +166,39 @@ def bookPage(isbn):
         editReview(db, userID, bookID, _rating, _reviewBody)
         print(f"User {session.get('username')} requested to edit their review:\n{_rating}, {_reviewBody}")
         return redirect(f"/book/isbn/{isbn}")
-    
+
+@app.route('/app/<string:isbn>')
+def apiGetIsbn(isbn):
+  bookInfo = dbBookInfo(db, isbn)
+  if bookInfo is None:
+    # Flask response made from tuple (response, status, headers)
+    return (json.dumps({}), 400, {'ContentType': 'application/json'})
+
+  goodReadsInfo = bookInfoISBN(isbn)
+
+  _title = bookInfo[2]
+  _author = bookInfo[3]
+  _year = bookInfo[4]
+  _isbn = bookInfo[1]
+  _reviewCount = countReviews(db, bookInfo[0])
+  _avgRating = goodReadsInfo['average_score']
+
+  # Flask response made from tuple (response, status, headers)
+  return (
+    json.dumps({
+      'title': _title,
+      'author': _author,
+      'year': _year,
+      'isbn': _isbn,
+      'review_count': _reviewCount,
+      'average_score': _avgRating
+    }),
+    200,
+    {
+      'ContentType': 'application/json'
+    }
+  )
+
 
 """ Helpers """
 def isLoggedIn():

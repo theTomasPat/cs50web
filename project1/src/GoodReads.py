@@ -3,13 +3,14 @@
 from xml.etree import ElementTree
 import urllib.request
 
-"""
-Take a ISBN and query the GoodReads API for the info
-parse the response and return a dictionary with fields:
-  - average_score
-  - image_url
-"""
 def bookInfoISBN(isbn):
+  """
+  Take a ISBN and query the GoodReads API for the info
+  Parse the response and return a dictionary with fields:
+    - average_score
+    - image_url
+    - description
+  """
   devKey = '8JWRLazhbfMah62XrCf82A'
 
   # grab xml data from GoodReads

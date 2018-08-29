@@ -165,6 +165,8 @@ def dbBookSearch(db, col, query):
             'cover_image': URL,
             'title': String,
             'author': String,
+            'year': Integer,
+            'avgScore': Number,
             'description': String
           }
           , ...
@@ -198,6 +200,8 @@ def dbBookSearch(db, col, query):
       'coverImage': '',
       'title': 'No search results found!',
       'author': '',
+      'year': 0,
+      'avgScore': 0,
       'description': ''
     })
   else:
@@ -215,7 +219,31 @@ def dbBookSearch(db, col, query):
         'coverImage': goodReadsBookInfo['image_url'],
         'title': book[2],
         'author': book[3],
+        'year': book[4],
+        'avgScore': goodReadsBookInfo['average_score'],
         'description': goodReadsBookInfo['description']
       })
   
   return bookListEntry
+
+def dbBookInfo(db, isbn):
+  return db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+
+def countReviews(db, bookID):
+  """
+  Count the number of reviews in the DB
+
+  Arguments:
+    - db -- Session: the db object to run the query on
+    - bookID -- Integer: the book's ID in the DB to query
+  
+  Returns:
+    - Integer: the number of reviews found for that book
+  """
+  reviewCount = db.execute("SELECT COUNT(*) FROM reviews WHERE book_id=:book_id", {
+    'book_id': bookID
+  }).fetchone()
+  if reviewCount is None:
+    return 0
+
+  return reviewCount
