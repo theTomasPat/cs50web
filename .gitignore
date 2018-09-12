@@ -34,3 +34,5 @@ Temporary Items
 __pycache__
 flask_session
 __db__
+
+dbInfo.txt
