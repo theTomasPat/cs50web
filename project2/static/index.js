@@ -1,5 +1,33 @@
 // Once the document has been loaded, do stuff
 document.addEventListener('DOMContentLoaded', () => {
+  // set the content-container div's height
+  document.querySelector('#content-container').style.height = updateElementHeight(
+    window.innerHeight,
+    [document.querySelector('#page-header')]
+  );
+
+  // add event listener for window resizing
+  window.onresize = () => {
+    // Resize main content container
+    document.querySelector('#content-container').style.height = updateElementHeight(
+      window.innerHeight,
+      [document.querySelector('#page-header')]
+    );
+    
+    // If it exists, resize the chat messages container
+    const eltChatWindow = document.querySelector('#chat-messages-container');
+    if (eltChatWindow) {
+      const eltChatApp = document.querySelector('#chat-app')
+      const eltChatAppHeightCSS = window.getComputedStyle(eltChatApp, null).getPropertyValue('height');
+      const eltChatAppHeight = Number(eltChatAppHeightCSS.substr(0, eltChatAppHeightCSS.length - 2));
+
+      // resize chat messages container
+      eltChatWindow.style.height = updateElementHeight(
+        eltChatAppHeight,
+        [document.querySelector('#message-input-container')]
+      );
+    }
+  };
 
   // grab the user's username from local storage
   var username = localStorage.getItem('username');
@@ -45,14 +73,8 @@ function login() {
   updateUserInfo(true);
 
   // grab the html to make up the chat app
-  fetchHTML("chat").then(
-    (resolvedData) => {
-      document.querySelector('#content-container').innerHTML = resolvedData;
-    },
-    (rejectedData) => {
-      document.querySelector('#content-container').innerHTML = rejectedData;
-    }
-  );
+  fetchChatApp();
+
   return false;
 }
 
@@ -118,4 +140,60 @@ function fetchLoginForm(){
       document.querySelector('#content-container').innerHTML = rejectedData;
     }
   );
+}
+
+/**
+ * Wrapper for the fetchHTML function
+ * used specifically for loading the chat app
+ *
+ */
+function fetchChatApp() {
+  fetchHTML("chat").then(
+    (resolvedData) => {
+      document.querySelector('#content-container').innerHTML = resolvedData;
+      
+      // resize chat-messages-container
+      const eltChatWindow = document.querySelector('#chat-messages-container');
+      if (eltChatWindow) {
+        const eltChatApp = document.querySelector('#chat-app')
+        const eltChatAppHeightCSS = window.getComputedStyle(eltChatApp, null).getPropertyValue('height');
+        const eltChatAppHeight = Number(eltChatAppHeightCSS.substr(0, eltChatAppHeightCSS.length - 2));
+
+        // do the actual resizing
+        eltChatWindow.style.height = updateElementHeight(
+          eltChatAppHeight,
+          [document.querySelector('#message-input-container')]
+        );
+      }
+    },
+    (rejectedData) => {
+      document.querySelector('#content-container').innerHTML = rejectedData;
+    }
+  );
+}
+
+/**
+ * Return a CSS value string representing a number of pixels to resize the given element by.
+ * The value is calculated by subtracting the sum of the height of the "sibling" elements from
+ * the provided "max" value.
+ *
+ * @param {Number} max Number of pixels to be used as the maximum bound
+ * @param {Array<HTMLElement>} siblings Array of elements whose heights will be summed and subtracted from "max"
+ * @return {String} CSS value string in the form of "Npx" where N is the calculated pixel height for the given element
+ */
+function updateElementHeight(max, siblings) {
+  let siblingHeights = 0;
+
+  // map/reduce siblings array
+  // map array to get computed style of each sibling element, extract height value, convert to Number
+  // reduce siblings array to add all the sibling heights together
+  siblingHeights = siblings.map((val) => {
+    const eltHeightCSS = window.getComputedStyle(val, null).getPropertyValue('height');
+    const eltHeight = Number(eltHeightCSS.substr(0, eltHeightCSS.length - 2));
+    return eltHeight;
+  }).reduce((acc, currVal) => {
+    return acc + currVal;
+  }, 0);
+
+  return String(max - siblingHeights) + "px";
 }
