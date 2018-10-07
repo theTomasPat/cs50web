@@ -1,15 +1,32 @@
-<div class="row" id="chat-app" style="width: 100%">
-  <div class="col-3" id="list-rooms" style="background-color: #eeeeee">
+<div class="row" id="chat-app">
+  <div class="col-3" id="list-rooms">
     chat rooms here
   </div>
-  <div class="col-9" style="background-color: white">
-    <div class="row" id="chat-messages-container" style="height: 25px; width: 100%; padding: 0 1em 0 1em;">
-      chat messages go here
+  <div class="col-9" id="messages-panel" style="background-color: white">
+    <div class="row" id="chat-messages-container">
+      <script type="text/x-handlebars-template" id="chat-messages-template">
+        <div class="chat-message">
+          <div class="row">
+            <div class="col-6">
+              <h7 class="text-muted">{{ username }}</h7>
+            </div>
+            <div class="col-6">
+              <h7 class="float-right text-muted">{{ timestamp }}</h7>
+            </div>
+          </div>
+          <div class="row message-data-divider"></div>
+          <div class="row">
+            <div class="col-12">
+              <p class="message-body">{{ body }}</p>
+            </div>
+          </div>
+        </div>
+      </script>
     </div>
-    <div class="row" id="message-input-container" style="height: 3em; width: 100%; margin-right: -35px;">
-      <form id="form-send-message" style="width: 100%">
+    <div class="row" id="message-input-container">
+      <form id="form-send-message" onsubmit="return sendMessage();">
         <div class="input-group">
-          <input type="text" class="form-control" id="message-input" placeholder="Type your message here...">
+          <textarea class="form-control" id="message-input" rows="2" placeholder="Type your message here..."></textarea>
           <div class="input-group-append">
             <input type="submit" class="form-control" id="message-send" value="Send">
           </div>

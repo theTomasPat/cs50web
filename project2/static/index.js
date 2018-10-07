@@ -1,3 +1,16 @@
+var socket;
+var chatMsgTemplate;
+var dayEnum = {
+  0: 'Sun',
+  1: 'Mon',
+  2: 'Tue',
+  3: 'Wed',
+  4: 'Thur',
+  5: 'Fri',
+  6: 'Sat',
+};
+var autoScroll = true;
+
 // Once the document has been loaded, do stuff
 document.addEventListener('DOMContentLoaded', () => {
   // set the content-container div's height
@@ -62,6 +75,7 @@ function updateUserInfo(loggedIn) {
 
 /**
  * Handle clicking the login link in the header
+ * and signing in from login page
  *
  * @return {boolean} false
  */
@@ -152,24 +166,89 @@ function fetchChatApp() {
     (resolvedData) => {
       document.querySelector('#content-container').innerHTML = resolvedData;
       
-      // resize chat-messages-container
       const eltChatWindow = document.querySelector('#chat-messages-container');
       if (eltChatWindow) {
+        // resize chat-messages-container
         const eltChatApp = document.querySelector('#chat-app')
         const eltChatAppHeightCSS = window.getComputedStyle(eltChatApp, null).getPropertyValue('height');
         const eltChatAppHeight = Number(eltChatAppHeightCSS.substr(0, eltChatAppHeightCSS.length - 2));
-
-        // do the actual resizing
         eltChatWindow.style.height = updateElementHeight(
           eltChatAppHeight,
           [document.querySelector('#message-input-container')]
         );
+
+        // render the chat message template
+        chatMsgTemplate = Handlebars.compile(document.querySelector('#chat-messages-template').innerHTML);
+
+        fetchMessages();
+
+        // add event handler for scrolling the chat messages
+        eltChatWindow.onscroll = () => {
+          if (eltChatWindow.scrollHeight - eltChatWindow.scrollTop === eltChatWindow.clientHeight) {
+            autoScroll = true;
+          }
+          else {
+            autoScroll = false;
+          }
+        };
       }
+
+      // connect SocketIO to server
+      socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+      // once successfully connected...
+      socket.on('connect', () => {
+        console.log("Successfully connected to websocket!");
+
+        // Uncomment once done testing. It just spams the login message
+        //socket.emit('login', {'username': localStorage.getItem('username')});
+      });
+
+      // Add an event handler for new messages
+      socket.on('serverMessage', (data) => {
+        console.log("Received new message from server");
+
+        // add new message to chat window
+        addMessage(data); 
+
+        scrollChatWindow();
+      });
+
     },
     (rejectedData) => {
       document.querySelector('#content-container').innerHTML = rejectedData;
     }
   );
+}
+
+/**
+ * Retrieve chat messages from the server
+ * addMessage() will be called for each message object that was returned
+ *
+ */
+function fetchMessages() {
+  // Initialize new XMLHttpRequest object
+  const contentRequest = new XMLHttpRequest();
+  contentRequest.open('GET', '/fetchMessages');
+
+  contentRequest.onload = () => {
+    // Grab the response data
+    const data = contentRequest.response;
+
+    // verify the request happened successfully
+    if (data.success) {
+      console.log("Received messages back from the server!");
+      // Add a new post for each message object that was returned
+      data.messages.forEach(addMessage);
+    }
+    else {
+      // Request couldn't be completed. Let someone know
+      console.log("Couldn't retrieve chat messages from server.");
+    }
+  };
+
+  console.log("Attempting to retrieve messages from the server...");
+  contentRequest.responseType = 'json';
+  contentRequest.send();
 }
 
 /**
@@ -196,4 +275,94 @@ function updateElementHeight(max, siblings) {
   }, 0);
 
   return String(max - siblingHeights) + "px";
+}
+
+/**
+ * Send a message to the server
+ *
+ * @returns false - used to prevent the page from reloading because the form was submitted
+ */
+function sendMessage() {
+  // Grab the html element for the message text
+  const messageInputField = document.querySelector('#message-input');
+
+  // if that element query didn't return null
+  if (messageInputField) {
+    // emit a socket event containing necessary message data
+    socket.emit('clientMessage', {
+      'username': localStorage.getItem('username'),
+      'body': messageInputField.value
+    });
+  }
+
+  // reset message input field
+  messageInputField.value = '';
+
+  // prevent page reload
+  return false;
+}
+
+/**
+ * Build and add a chat message element to the chat window.
+ * Element will be built using the Handlebars template found in chat.html
+ *
+ * @param {Object} contents - JS object that must contain keys: timestamp, username, body
+ */
+function addMessage(contents) {
+  const msgDate = new Date(Math.floor(contents['timestamp'] * 1000));
+  // convert Date object to a string
+  const dateDay = dayEnum[msgDate.getDay()];
+  const dateHours = formatHours(msgDate.getHours());
+  const dateMinutes = formatMinutes(msgDate.getMinutes());
+  const dateStr = `Sent ${dateDay} ${dateHours}:${dateMinutes}`;
+  const msgTimestamp = dateStr;
+  const msgUsername = contents['username'];
+  const msgBody = contents['body'];
+
+  // build message element from compiled template
+  const message = chatMsgTemplate({
+    'timestamp': msgTimestamp,
+    'username': msgUsername,
+    'body': msgBody
+  });
+  console.log(`Adding message {${msgTimestamp}, ${msgUsername}, ${msgBody}}`);
+
+  // add rendered element to the chat message container
+  document.querySelector('#chat-messages-container').innerHTML += message;
+
+  scrollChatWindow();
+}
+
+/**
+ * Return a properly formatted hour value
+ * It must be in 12 hr format and 12AM must read as 12, not 0
+ *
+ * @param {number} hrs hour component of Date object in range [0, 23]
+ * @returns {number} hour component of time in range [1, 12]
+ */
+function formatHours(hrs) {
+  if (hrs == 0) {
+    return 12;
+  }
+
+  return (hrs > 12) ? hrs - 12 : hrs;
+}
+
+/**
+ * Return a properly formatted string representing minutes
+ * The returned string must be zero-padded
+ *
+ * @param {number} mins Minutes component of Date object in range [0, 59]
+ * @returns {string} String representing the minutes component of time from "00" to "59"
+ */
+function formatMinutes(mins) {
+  return (mins < 10) ? `0${mins}` : String(mins);
+}
+
+function scrollChatWindow() {
+  eltChatMessagesContainer = document.querySelector('#chat-messages-container');
+
+  if (eltChatMessagesContainer && autoScroll) {
+    eltChatMessagesContainer.scrollTop = eltChatMessagesContainer.scrollHeight;
+  }
 }
