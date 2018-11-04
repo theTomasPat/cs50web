@@ -279,6 +279,10 @@ function fetchMessages(chatRoom) {
   contentRequest.send();
 }
 
+/**
+ * Request a JSON object from the server containing the list of chat rooms available
+ *
+ */
 function fetchRooms() {
   // Initialize new XMLHttpRequest object
   const contentRequest = new XMLHttpRequest();
@@ -302,6 +306,11 @@ function fetchRooms() {
   contentRequest.send();
 }
 
+/**
+ * Create links for each corresponding chat room
+ *
+ * @param {Array<String>} rooms list of strings representing the names of the chat rooms to create links for
+ */
 function createRoomLinks(rooms) {
   if (rooms.length > 0) {
     // get the room list container element
@@ -309,7 +318,7 @@ function createRoomLinks(rooms) {
 
     if (eltRoomsWindow) {
       // iterate over list of rooms from received data
-      rooms.forEach((val, index, arr) => {
+      rooms.forEach((val) => {
         // add a list item and link for each entry
         eltLink = document.createElement("a");
         eltLink.href = '';
@@ -325,6 +334,12 @@ function createRoomLinks(rooms) {
   }
 }
 
+/**
+ * Responsible for leaving the current chat room and entering the one supplied by the clicked link
+ *
+ * @param {MouseEvent} event MouseEvent
+ * @returns {Boolean} false to prevent page reloading
+ */
 function handleRoomLink(event) {
   // within this handler 'this' refers to the Element that was clicked
   const linkRoom = this.dataset.roomName;
@@ -451,6 +466,10 @@ function formatMinutes(mins) {
   return (mins < 10) ? `0${mins}` : String(mins);
 }
 
+/**
+ * Scroll the chat messages window down to the bottom
+ *
+ */
 function scrollChatWindow() {
   eltChatMessagesContainer = document.querySelector('#chat-messages-container');
 
