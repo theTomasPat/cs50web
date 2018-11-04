@@ -165,7 +165,14 @@ function fetchChatApp() {
   fetchHTML("chat").then(
     (resolvedData) => {
       document.querySelector('#content-container').innerHTML = resolvedData;
+
+      // verify the rooms list container has been loaded and fill it
+      const eltRoomsWindow = document.querySelector('#list-rooms');
+      if (eltRoomsWindow) {
+        fetchRooms();
+      }
       
+      // verify the chat container has been loaded and fill it
       const eltChatWindow = document.querySelector('#chat-messages-container');
       if (eltChatWindow) {
         // resize chat-messages-container
@@ -180,7 +187,8 @@ function fetchChatApp() {
         // render the chat message template
         chatMsgTemplate = Handlebars.compile(document.querySelector('#chat-messages-template').innerHTML);
 
-        fetchMessages();
+        // grab the last bunch of messages from the server
+        fetchMessages(localStorage.getItem('chatRoom'));
 
         // add event handler for scrolling the chat messages
         eltChatWindow.onscroll = () => {
@@ -199,7 +207,18 @@ function fetchChatApp() {
       socket.on('connect', () => {
         console.log("Successfully connected to websocket!");
 
-        // Uncomment once done testing. It just spams the login message
+        // connect to socket room
+        let socketRoom = localStorage.getItem('chatRoom');
+        if (socketRoom === null) {
+          localStorage.setItem('chatRoom', 'Lobby');
+        }
+
+        socket.emit('joinRoom', {
+          'currentRoom': localStorage.getItem('chatRoom'),
+          'desiredRoom': 'Lobby'
+        });
+
+        // TODO: Uncomment once done testing. It just spams the login message
         //socket.emit('login', {'username': localStorage.getItem('username')});
       });
 
@@ -212,7 +231,6 @@ function fetchChatApp() {
 
         scrollChatWindow();
       });
-
     },
     (rejectedData) => {
       document.querySelector('#content-container').innerHTML = rejectedData;
@@ -223,12 +241,18 @@ function fetchChatApp() {
 /**
  * Retrieve chat messages from the server
  * addMessage() will be called for each message object that was returned
- *
+ * 
+ * @param {string} chatRoom chat room to retrieve the messages from
  */
-function fetchMessages() {
+function fetchMessages(chatRoom) {
+  // Assign 'Lobby' as a default chat room to grab messages from
+  if (chatRoom === null) {
+    chatRoom = 'Lobby';
+  }
+
   // Initialize new XMLHttpRequest object
   const contentRequest = new XMLHttpRequest();
-  contentRequest.open('GET', '/fetchMessages');
+  contentRequest.open('GET', `/fetchMessages/${chatRoom}`);
 
   contentRequest.onload = () => {
     // Grab the response data
@@ -237,6 +261,10 @@ function fetchMessages() {
     // verify the request happened successfully
     if (data.success) {
       console.log("Received messages back from the server!");
+
+      // Clear the current messages
+      document.querySelector('#chat-messages-container').innerHTML = '';
+
       // Add a new post for each message object that was returned
       data.messages.forEach(addMessage);
     }
@@ -249,6 +277,69 @@ function fetchMessages() {
   console.log("Attempting to retrieve messages from the server...");
   contentRequest.responseType = 'json';
   contentRequest.send();
+}
+
+function fetchRooms() {
+  // Initialize new XMLHttpRequest object
+  const contentRequest = new XMLHttpRequest();
+  contentRequest.open('GET', '/fetchRooms');
+
+  contentRequest.onload = () => {
+    const data = contentRequest.response;
+
+    // verify the request happened successfully
+    if (data.success) {
+      createRoomLinks(data.rooms);
+    }
+    else {
+      // Request couldn't be completed. Let someone know
+      console.log("Couldn't retrieve chat rooms from server.");
+    }
+  }
+
+  console.log("Attempting to retrieve the list of chat rooms on the server");
+  contentRequest.responseType = 'json';
+  contentRequest.send();
+}
+
+function createRoomLinks(rooms) {
+  if (rooms.length > 0) {
+    // get the room list container element
+    const eltRoomsWindow = document.querySelector('#list-rooms');
+
+    if (eltRoomsWindow) {
+      // iterate over list of rooms from received data
+      rooms.forEach((val, index, arr) => {
+        // add a list item and link for each entry
+        eltLink = document.createElement("a");
+        eltLink.href = '';
+        eltLink.classList.add('room-list-entry');
+        eltLink.dataset.roomName = val;
+        eltLink.onclick = handleRoomLink;
+        eltLink.innerHTML = val;
+
+        // Add new elements to the UL
+        eltRoomsWindow.appendChild(eltLink);
+      });
+    }
+  }
+}
+
+function handleRoomLink(event) {
+  // within this handler 'this' refers to the Element that was clicked
+  const linkRoom = this.dataset.roomName;
+
+  // leave current SocketIO room and join the one from the link
+  socket.emit('joinRoom', {
+    'currentRoom': localStorage.getItem('chatRoom'),
+    'desiredRoom': this.dataset.roomName
+  })
+  localStorage.setItem('chatRoom', this.dataset.roomName);
+
+  fetchMessages(this.dataset.roomName);
+
+  // prevent page reload
+  return false;
 }
 
 /**
@@ -290,6 +381,7 @@ function sendMessage() {
   if (messageInputField) {
     // emit a socket event containing necessary message data
     socket.emit('clientMessage', {
+      'room': localStorage.getItem('chatRoom'),
       'username': localStorage.getItem('username'),
       'body': messageInputField.value
     });
