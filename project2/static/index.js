@@ -220,16 +220,16 @@ function fetchChatApp() {
 
         // TODO: Uncomment once done testing. It just spams the login message
         //socket.emit('login', {'username': localStorage.getItem('username')});
-      });
 
-      // Add an event handler for new messages
-      socket.on('serverMessage', (data) => {
-        console.log("Received new message from server");
+        // Add an event handler for new messages
+        socket.on('serverMessage', (data) => {
+          console.log("Received new message from server");
 
-        // add new message to chat window
-        addMessage(data); 
+          // add new message to chat window
+          addMessage(data); 
 
-        scrollChatWindow();
+          scrollChatWindow();
+        });
       });
     },
     (rejectedData) => {
