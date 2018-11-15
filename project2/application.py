@@ -110,6 +110,24 @@ def handle_join_room(data):
   if not data['desiredRoom'] in chatRooms:
     chatRooms[data['desiredRoom']] = []
 
+@socketio.on("clientRequestNewRoom")
+def handle_new_room(data):
+  # grab the name of the room
+  roomName = data['roomName']
+
+  # make sure that room doesn't already exist
+  if roomName in chatRooms:
+    return
+
+  # create a new room
+  chatRooms[roomName] = []
+
+  # let the clients know there's a new room
+  socketio.emit('serverNewRoom', {
+    'roomName': roomName
+  },
+  broadcast=True)
+
 ### Helpers
 
 def messageToDict(message):

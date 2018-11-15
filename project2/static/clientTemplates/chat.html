@@ -1,5 +1,13 @@
 <div class="row" id="chat-app">
-  <div class="col-3" id="list-rooms"></div>
+  <div class="col-3" id="list-rooms">
+    <div id="room-list-container"></div>
+    <div id="add-room-form">
+      <form onsubmit="return createNewRoom();">
+        <input type="text" id="new-room-name" class="form-control" placeholder="New room name" maxlength="32">
+        <input type="submit" id="new-room-submit-btn" class="form-control" value="Create room">
+      </form>
+    </div>
+  </div>
   <div class="col-9" id="messages-panel" style="background-color: white">
     <div class="row" id="chat-messages-container">
       <script type="text/x-handlebars-template" id="chat-messages-template">

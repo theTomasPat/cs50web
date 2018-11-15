@@ -167,8 +167,8 @@ function fetchChatApp() {
       document.querySelector('#content-container').innerHTML = resolvedData;
 
       // verify the rooms list container has been loaded and fill it
-      const eltRoomsWindow = document.querySelector('#list-rooms');
-      if (eltRoomsWindow) {
+      const eltRoomsList = document.querySelector('#room-list-container');
+      if (eltRoomsList) {
         fetchRooms();
       }
       
@@ -218,9 +218,6 @@ function fetchChatApp() {
           'desiredRoom': 'Lobby'
         });
 
-        // TODO: Uncomment once done testing. It just spams the login message
-        //socket.emit('login', {'username': localStorage.getItem('username')});
-
         // Add an event handler for new messages
         socket.on('serverMessage', (data) => {
           console.log("Received new message from server");
@@ -230,6 +227,15 @@ function fetchChatApp() {
 
           scrollChatWindow();
         });
+
+        // Add an event handler for new rooms
+        socket.on('serverNewRoom', (data) => {
+          // add a listing for the new room in the rooms list
+          createRoomLinks([data['roomName']]);
+        });
+
+        // TODO: Uncomment once done testing. It just spams the login message
+        //socket.emit('login', {'username': localStorage.getItem('username')});
       });
     },
     (rejectedData) => {
@@ -314,9 +320,9 @@ function fetchRooms() {
 function createRoomLinks(rooms) {
   if (rooms.length > 0) {
     // get the room list container element
-    const eltRoomsWindow = document.querySelector('#list-rooms');
+    const eltRoomsList = document.querySelector('#room-list-container');
 
-    if (eltRoomsWindow) {
+    if (eltRoomsList) {
       // iterate over list of rooms from received data
       rooms.forEach((val) => {
         // add a list item and link for each entry
@@ -328,10 +334,38 @@ function createRoomLinks(rooms) {
         eltLink.innerHTML = val;
 
         // Add new elements to the UL
-        eltRoomsWindow.appendChild(eltLink);
+        eltRoomsList.appendChild(eltLink);
       });
     }
   }
+}
+
+/**
+ * Submit a request to the server to add a new chat room
+ *
+ * @returns {boolean} False to prevent page reloading
+ */
+function createNewRoom(){
+  const eltRoomNameInput = document.querySelector('#new-room-name');
+
+  if (eltRoomNameInput) {
+    // grab the name from the text field
+    const roomName = eltRoomNameInput.value;
+    
+    // make sure the name has at least one alphanumeric character
+    if (!roomName.match(/[A-Za-z0-9]+/)) return false;
+
+    // send the request to the server
+    socket.emit('clientRequestNewRoom', {
+      'roomName': roomName
+    });
+
+    // reset input field
+    eltRoomNameInput.value = '';
+  }
+
+  // return false to prevent page reload
+  return false;
 }
 
 /**
