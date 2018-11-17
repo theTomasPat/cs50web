@@ -470,8 +470,6 @@ function addMessage(contents) {
 
   // add rendered element to the chat message container
   document.querySelector('#chat-messages-container').innerHTML += message;
-
-  scrollChatWindow();
 }
 
 /**

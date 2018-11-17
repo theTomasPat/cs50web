@@ -16,6 +16,8 @@ html, body, #main-container, #content-container {
 
 #list-rooms {
   background-color: #eeeeee;
+  padding-top: 1em;
+  overflow-y: auto;
 }
 
 .room-list-entry {

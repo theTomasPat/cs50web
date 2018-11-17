@@ -1,10 +1,12 @@
 <div class="row" id="chat-app">
   <div class="col-3" id="list-rooms">
+    <h5>Chat Rooms:</h5>
     <div id="room-list-container"></div>
+    <hr>
     <div id="add-room-form">
       <form onsubmit="return createNewRoom();">
-        <input type="text" id="new-room-name" class="form-control" placeholder="New room name" maxlength="32">
-        <input type="submit" id="new-room-submit-btn" class="form-control" value="Create room">
+        <input type="text" id="new-room-name" class="form-control form-control-sm" placeholder="New room name" maxlength="32">
+        <input type="submit" id="new-room-submit-btn" class="form-control form-control-sm" value="Create room">
       </form>
     </div>
   </div>
